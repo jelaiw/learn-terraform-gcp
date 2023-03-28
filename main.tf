@@ -14,8 +14,20 @@ provider "google" {
   zone        = var.zone
 }
 
-resource "google_compute_network" "vpc_network" {
+resource "google_compute_network" "foonet" {
   name = "foonet"
+}
+
+resource "google_compute_firewall" "foonet-allow-ssh" {
+  name    = "foonet-allow-ssh"
+  network = google_compute_network.foonet.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
 }
 
 resource "google_compute_instance" "vm_instance" {
@@ -30,7 +42,7 @@ resource "google_compute_instance" "vm_instance" {
   }
 
   network_interface {
-    network = google_compute_network.vpc_network.name
+    network = google_compute_network.foonet.name
     access_config {
     }
   }
